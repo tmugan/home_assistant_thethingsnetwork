@@ -13,7 +13,7 @@ DEFAULT_TIMEOUT = 10
 DEFAULT_API_REFRESH_PERIOD_S = 5 * 60
 DEFAULT_FIRST_FETCH_LAST_H = 48
 
-TTN_API_HOSTNAME = "eu1.cloud.thethings.network"
+TTN_API_HOSTNAME = "au1.cloud.thethings.network"
 TTN_DATA_STORAGE_URL = "https://{hostname}/api/v3/as/applications/{app_id}/packages/storage/uplink_message{options}"
 
 COMPONENT_TYPES = ["sensor", "binary_sensor", "device_tracker"]
