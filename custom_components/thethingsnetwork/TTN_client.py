@@ -372,7 +372,7 @@ class TTN_client:
         url = TTN_DATA_STORAGE_URL.format(
             app_id=self.__application_id, hostname=self.__hostname, options=options
         )
-        LOGGER.debug(f"URL: {url}")
+        LOGGER.info(f"URL: {url}")
         headers = {
             ACCEPT: "text/event-stream",
             AUTHORIZATION: f"Bearer {self.__access_key}",
