@@ -14,7 +14,7 @@ print(__name__)
 from .const import *
 from .TTN_client import TTN_client
 
-
+LOGGER.info("Got to here")
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
