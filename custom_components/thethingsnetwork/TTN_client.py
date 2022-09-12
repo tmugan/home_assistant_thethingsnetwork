@@ -34,7 +34,7 @@ class TTN_client:
 
     @staticmethod
     def createInstance(hass: HomeAssistantType, entry: ConfigEntry):
-        """ Static access method. """
+        """Static access method."""
         application_id = entry.data[CONF_APP_ID]
 
         if application_id not in TTN_client.__instances:
@@ -49,7 +49,7 @@ class TTN_client:
 
     @staticmethod
     async def deleteInstance(hass: HomeAssistantType, entry: ConfigEntry):
-        """ Static access method. """
+        """Static access method."""
         application_id = entry.data[CONF_APP_ID]
 
         unload_ok = all(
@@ -88,7 +88,7 @@ class TTN_client:
     def get_field_options(self, device_id, field_id):
         fields = self.get_options().get(OPTIONS_MENU_EDIT_FIELDS, {})
         field_opts = fields.get(field_id, {})
-        if (field_opts.get(OPTIONS_FIELD_DEVICE_SCOPE, device_id) == device_id):
+        if field_opts.get(OPTIONS_FIELD_DEVICE_SCOPE, device_id) == device_id:
             return field_opts
         else:
             return {}
@@ -117,7 +117,7 @@ class TTN_client:
 
         self.__entry = entry
         self.__hass = hass
-        self.__hostname = entry.data.get(CONF_HOSTNAME, TTN_API_HOSTNAME)
+        self.__hostname = entry.data.get(CONF_HOSTNAME, EU_TTN_API_HOSTNAME)
         self.__application_id = entry.data[CONF_APP_ID]
         self.__access_key = entry.data[CONF_ACCESS_KEY]
         LOGGER.debug(f"Creating TTN_client with application_id {self.__application_id}")
@@ -183,21 +183,23 @@ class TTN_client:
             fetch_last = f"{self.get_first_fetch_last_h()}h"
             LOGGER.info(f"First fetch of tth data: {fetch_last}")
         else:
-            #Fetch new measurements since last time (with an extra minute margin)
+            # Fetch new measurements since last time (with an extra minute margin)
             fetch_last = f"{self.get_refresh_period_s()+60}s"
             LOGGER.debug(f"Fetch of ttn data: {fetch_last}")
 
         # Discover entities
         # See API docs at https://www.thethingsindustries.com/docs/reference/api/storage_integration/
-        measurements = await self.storage_api_call(f"?last={fetch_last}&order=received_at")
+        measurements = await self.storage_api_call(
+            f"?last={fetch_last}&order=received_at"
+        )
         async for measurement_raw in measurements:
-            #Skip empty lines not containing a result
+            # Skip empty lines not containing a result
             if len(measurement_raw) < len("result"):
                 continue
 
             LOGGER.debug(f"TTN entry: {measurement_raw}")
 
-            #Parse line with json dictionary
+            # Parse line with json dictionary
             measurement_json = json.loads(measurement_raw)
 
             if "result" not in measurement_json:
@@ -218,6 +220,7 @@ class TTN_client:
 
                 if value is None:
                     continue
+
                 async def process(field_id, value):
                     unique_id = TtnDataSensor.get_unique_id(device_id, field_id)
                     if unique_id not in self.__entities:
@@ -242,15 +245,16 @@ class TTN_client:
                         await self.__entities[unique_id].async_set_state(value)
 
                 async def process_gps(field_id, value):
-                    #position = {}
-                    #map_value = map_value_re.findall(value)
-                    #for (key,value) in map_value:
+                    # position = {}
+                    # map_value = map_value_re.findall(value)
+                    # for (key,value) in map_value:
                     #    position[key] = float(value)
-                    #await process(field_id, position)
+                    # await process(field_id, position)
                     await process(field_id, value)
 
-
-                entity_type = self.get_field_options(device_id, field_id).get(OPTIONS_FIELD_ENTITY_TYPE, None)
+                entity_type = self.get_field_options(device_id, field_id).get(
+                    OPTIONS_FIELD_ENTITY_TYPE, None
+                )
                 if entity_type == OPTIONS_FIELD_ENTITY_TYPE_SENSOR:
                     await process(field_id, value)
                 elif entity_type == OPTIONS_FIELD_ENTITY_TYPE_BINARY_SENSOR:
@@ -258,12 +262,12 @@ class TTN_client:
                 elif entity_type == OPTIONS_FIELD_ENTITY_TYPE_DEVICE_TRACKER:
                     await process_gps(field_id, value)
                 else:
-                    if (type(value) is dict):
+                    if type(value) is dict:
                         if "gps" in field_id:
-                            #GPS
+                            # GPS
                             await process_gps(field_id, value)
                         else:
-                            #Other - such as accelerator
+                            # Other - such as accelerator
                             for (key, value_item) in value.items():
                                 await process(f"{field_id}_{key}", value_item)
                     else:
@@ -281,7 +285,9 @@ class TTN_client:
         self.__entry = entry
 
         if self.__coordinator:
-            self.__coordinator.update_interval = timedelta(seconds=self.get_refresh_period_s())
+            self.__coordinator.update_interval = timedelta(
+                seconds=self.get_refresh_period_s()
+            )
 
         for entitiy in self.__entities.values():
             await entitiy.refresh_options()
@@ -302,10 +308,12 @@ class TTN_client:
 
         self.add_entities()
 
-    def add_entities(self,
-                     async_add_sensor_entities=None,
-                     async_add_binary_sensor_entities=None,
-                     async_add_device_tracker_entities=None):
+    def add_entities(
+        self,
+        async_add_sensor_entities=None,
+        async_add_binary_sensor_entities=None,
+        async_add_device_tracker_entities=None,
+    ):
         if async_add_sensor_entities:
             # Remember handling for dynamic adds later
             self.__async_add_sensor_entities = async_add_sensor_entities
@@ -323,13 +331,17 @@ class TTN_client:
         device_tracker_to_be_added = []
         for entity in self.__entities.values():
             if entity.to_be_added:
-                if self.__async_add_sensor_entities       and (type(entity) == TtnDataSensor):
-                        sensors_to_be_added.append(entity)
-                        entity.to_be_added = False
-                if self.__async_add_binary_sensor_entities       and (type(entity) == TtnDataBinarySensor):
-                        binary_sensors_to_be_added.append(entity)
-                        entity.to_be_added = False
-                if self.__async_add_device_tracker_entities and (type(entity) == TtnDataDeviceTracker):
+                if self.__async_add_sensor_entities and (type(entity) == TtnDataSensor):
+                    sensors_to_be_added.append(entity)
+                    entity.to_be_added = False
+                if self.__async_add_binary_sensor_entities and (
+                    type(entity) == TtnDataBinarySensor
+                ):
+                    binary_sensors_to_be_added.append(entity)
+                    entity.to_be_added = False
+                if self.__async_add_device_tracker_entities and (
+                    type(entity) == TtnDataDeviceTracker
+                ):
                     device_tracker_to_be_added.append(entity)
                     entity.to_be_added = False
 
@@ -361,7 +373,10 @@ class TTN_client:
             app_id=self.__application_id, hostname=self.__hostname, options=options
         )
         LOGGER.debug(f"URL: {url}")
-        headers = {ACCEPT: "text/event-stream", AUTHORIZATION: f"Bearer {self.__access_key}"}
+        headers = {
+            ACCEPT: "text/event-stream",
+            AUTHORIZATION: f"Bearer {self.__access_key}",
+        }
 
         try:
             session = async_get_clientsession(self.__hass)
@@ -403,7 +418,7 @@ class TtnDataEntity(Entity):
         self.to_be_added = True
         self.to_be_removed = False
 
-        #Values from options
+        # Values from options
         self._unit_of_measurement = None
         self.__device_class = None
         self.__icon = None
@@ -413,9 +428,9 @@ class TtnDataEntity(Entity):
 
         self.__refresh_names()
 
-    #---------------
+    # ---------------
     # standard Entity propertiess
-    #---------------
+    # ---------------
     @property
     def should_poll(self) -> bool:
         """Return True if entity has to be polled for state.
@@ -546,10 +561,9 @@ class TtnDataEntity(Entity):
         """Return if the entity should be enabled when first added to the entity registry."""
         return True
 
-
-    #---------------
+    # ---------------
     # TTN integration additional methods
-    #---------------
+    # ---------------
     @property
     def device_id(self):
         return self.__device_id
@@ -570,19 +584,23 @@ class TtnDataEntity(Entity):
         device_name = self.__device_id
         field_name = self.__field_id
 
-        #Device options
+        # Device options
         device_opts = self.__client.get_device_options(self.__device_id)
-        device_name                  = device_opts.get(OPTIONS_DEVICE_NAME,                device_name)
+        device_name = device_opts.get(OPTIONS_DEVICE_NAME, device_name)
 
-        #Field options
+        # Field options
         field_opts = self.__client.get_field_options(self.__device_id, self.__field_id)
-        field_name                   = field_opts.get(OPTIONS_FIELD_NAME,                  field_name)
-        self._unit_of_measurement    = field_opts.get(OPTIONS_FIELD_UNIT_MEASUREMENT,      None)
-        self.__device_class          = field_opts.get(OPTIONS_FIELD_DEVICE_CLASS,          None)
-        self.__icon                  = field_opts.get(OPTIONS_FIELD_ICON,                  None)
-        self.__picture               = field_opts.get(OPTIONS_FIELD_PICTURE,               None)
-        self.__supported_features    = field_opts.get(OPTIONS_FIELD_SUPPORTED_FEATURES,    None)
-        self.__context_recent_time_s = field_opts.get(OPTIONS_FIELD_CONTEXT_RECENT_TIME_S, 5)
+        field_name = field_opts.get(OPTIONS_FIELD_NAME, field_name)
+        self._unit_of_measurement = field_opts.get(OPTIONS_FIELD_UNIT_MEASUREMENT, None)
+        self.__device_class = field_opts.get(OPTIONS_FIELD_DEVICE_CLASS, None)
+        self.__icon = field_opts.get(OPTIONS_FIELD_ICON, None)
+        self.__picture = field_opts.get(OPTIONS_FIELD_PICTURE, None)
+        self.__supported_features = field_opts.get(
+            OPTIONS_FIELD_SUPPORTED_FEATURES, None
+        )
+        self.__context_recent_time_s = field_opts.get(
+            OPTIONS_FIELD_CONTEXT_RECENT_TIME_S, 5
+        )
 
         self.__device_name = device_name
         self.__field_name = field_name
@@ -597,6 +615,7 @@ class TtnDataEntity(Entity):
         device_registry.async_get_or_create(
             config_entry_id=self.__client.entry.entry_id, **self.device_info
         )
+
 
 class TtnDataSensor(TtnDataEntity):
     @property
@@ -620,7 +639,6 @@ class TtnDataBinarySensor(TtnDataEntity):
 
 
 class TtnDataDeviceTracker(TtnDataSensor):
-
     @property
     def location_accuracy(self):
         """Return the location accuracy of the device.
@@ -691,4 +709,3 @@ class TtnDataDeviceTracker(TtnDataSensor):
             # ATTR_RAW: self._state["raw"],
             # ATTR_TIME: self._state["time"],
         }
-
