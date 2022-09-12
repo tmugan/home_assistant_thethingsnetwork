@@ -20,7 +20,7 @@ class FlowHandler(config_entries.ConfigFlow):
     def schema(self):
         """Return current schema."""
         channel = vol.Schema({"unit": str, "name": str})
-        LOGGER.info("Got to here 4")
+
         return vol.Schema(
             {
                 vol.Required(CONF_HOSTNAME, default=TTN_API_HOSTNAME): str,
