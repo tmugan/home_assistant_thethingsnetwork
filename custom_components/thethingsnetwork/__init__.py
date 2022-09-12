@@ -14,7 +14,7 @@ print(__name__)
 from .const import *
 from .TTN_client import TTN_client
 
-LOGGER.info("Got to here")
+LOGGER.info("Got to here 1")
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
@@ -52,7 +52,7 @@ async def async_setup(hass, config):
 
 async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
     """Establish connection with The Things Network."""
-
+LOGGER.info("Got to here 2")
     LOGGER.debug(
         f"Set up {entry.data[CONF_APP_ID]} at {entry.data.get(CONF_HOSTNAME, TTN_API_HOSTNAME)}"
     )
@@ -72,7 +72,7 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
 
 async def async_unload_entry(hass, entry) -> None:
     """Unload a config entry."""
-
+LOGGER.info("Got to here 3")
     LOGGER.debug(
         f"Remove {entry.data[CONF_APP_ID]} at {entry.data.get(CONF_HOSTNAME, TTN_API_HOSTNAME)}"
     )
