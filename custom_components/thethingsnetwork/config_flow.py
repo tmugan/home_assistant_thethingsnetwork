@@ -20,11 +20,13 @@ class FlowHandler(config_entries.ConfigFlow):
     def schema(self):
         """Return current schema."""
         channel = vol.Schema({"unit": str, "name": str})
-LOGGER.info("Got to here 4")
+        LOGGER.info("Got to here 4")
         return vol.Schema(
-            {vol.Required(CONF_HOSTNAME, default=TTN_API_HOSTNAME): str,
-             vol.Required(CONF_APP_ID): str,
-             vol.Required(CONF_ACCESS_KEY): str}
+            {
+                vol.Required(CONF_HOSTNAME, default=TTN_API_HOSTNAME): str,
+                vol.Required(CONF_APP_ID): str,
+                vol.Required(CONF_ACCESS_KEY): str,
+            }
         )
 
     async def _create_entry(self, data):
@@ -78,7 +80,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_create_entry(title=title, data=self.options)
 
     async def async_step_init(self, user_input=None):
-        """ Menu selection form."""
+        """Menu selection form."""
         if user_input is not None:
             # Go to next flow step
             selected_next_step = user_input[OPTIONS_SELECTED_MENU]
@@ -113,9 +115,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         if user_input is not None:
             # Update options
-            integration_settings[OPTIONS_MENU_INTEGRATION_FIRST_FETCH_TIME_H] = user_input[
+            integration_settings[
                 OPTIONS_MENU_INTEGRATION_FIRST_FETCH_TIME_H
-            ]
+            ] = user_input[OPTIONS_MENU_INTEGRATION_FIRST_FETCH_TIME_H]
             integration_settings[OPTIONS_MENU_INTEGRATION_REFRESH_TIME_S] = user_input[
                 OPTIONS_MENU_INTEGRATION_REFRESH_TIME_S
             ]

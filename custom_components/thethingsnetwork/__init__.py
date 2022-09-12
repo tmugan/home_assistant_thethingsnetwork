@@ -52,7 +52,7 @@ async def async_setup(hass, config):
 
 async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
     """Establish connection with The Things Network."""
-LOGGER.info("Got to here 2")
+    LOGGER.info("Got to here 2")
     LOGGER.debug(
         f"Set up {entry.data[CONF_APP_ID]} at {entry.data.get(CONF_HOSTNAME, TTN_API_HOSTNAME)}"
     )
@@ -72,7 +72,7 @@ LOGGER.info("Got to here 2")
 
 async def async_unload_entry(hass, entry) -> None:
     """Unload a config entry."""
-LOGGER.info("Got to here 3")
+    LOGGER.info("Got to here 3")
     LOGGER.debug(
         f"Remove {entry.data[CONF_APP_ID]} at {entry.data.get(CONF_HOSTNAME, TTN_API_HOSTNAME)}"
     )
