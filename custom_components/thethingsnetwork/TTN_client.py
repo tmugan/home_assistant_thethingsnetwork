@@ -177,7 +177,7 @@ class TTN_client:
     async def __fetch_data_from_ttn(self):
 
         new_entities = {}
-
+        LOGGER.info("Got to here 7")
         if self.__first_fetch:
             self.__first_fetch = False
             fetch_last = f"{self.get_first_fetch_last_h()}h"
