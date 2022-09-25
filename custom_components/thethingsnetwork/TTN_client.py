@@ -117,7 +117,7 @@ class TTN_client:
 
         self.__entry = entry
         self.__hass = hass
-        self.__hostname = entry.data.get(CONF_HOSTNAME, EU_TTN_API_HOSTNAME)
+        self.__hostname = entry.data.get(CONF_HOSTNAME, TTN_API_HOSTNAME)
         self.__application_id = entry.data[CONF_APP_ID]
         self.__access_key = entry.data[CONF_ACCESS_KEY]
         LOGGER.debug(f"Creating TTN_client with application_id {self.__application_id}")
